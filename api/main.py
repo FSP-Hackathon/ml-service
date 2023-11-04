@@ -14,23 +14,23 @@ INFLUX_BUCKET = os.environ['INFLUXDB_BUCKET']
 client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
 query_api = client.query_api()
 
-@app.get("/timeseries")
-async def get_time_series():
+@app.get("/metrica/{mtype}")
+async def get_time_series(mtype: str):
     query = f'from(bucket: "{INFLUX_BUCKET}") |> range(start: -1h)'
+    query = f'''
+            from(bucket: "{INFLUX_BUCKET}")
+            |> range(start: -1h)
+            |> filter(fn: (r) => r._measurement == {mtype})
+            '''
 
     result: List[FluxTable] = query_api.query(query=query)
-
-    data = []
+    x, y = [], []
     for table in result:
         for record in table.records:
-            data.append({
-                'time': record.get_time(),
-                'measurement': record.get_measurement(),
-                'field': record.get_field(),
-                'value': record.get_value()
-            })
+            x.append(record.get_time()) 
+            y.append(record.get_value())
 
-    return data
+    return x, y
 
 
 if __name__ == "__main__":
