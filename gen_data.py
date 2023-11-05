@@ -13,30 +13,35 @@ INFLUX_BUCKET = "metrics"
 client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
 
 
-# Инициализация API для записи данных
 write_api = client.write_api(write_options=SYNCHRONOUS)
 
-# Функция для генерации случайных данных
-def write_random_data(measurement, field, base_value):
-    point = Point(measurement) \
-        .tag("host", "host1") \
-        .field("total", base_value + random.uniform(-3, 3)) \
-        .field("free", base_value + random.uniform(-3, 3)) \
-        .field("used", base_value + random.uniform(-3, 3)) \
-        .time(datetime.utcnow(), WritePrecision.NS)
-    write_api.write(INFLUX_BUCKET, INFLUXDB_ORG, point)
 
 try:
     while True:
-        # Генерация и запись данных для CPU
-        write_random_data("cpu", "total", 50)  # Предполагаем, что 50 - это базовое значение использования CPU
-        # write_random_data("cpu", "free", 30)
-        # write_random_data("cpu", "used", 20)
-        # # Генерация и запись данных для Disk
-        # write_random_data("disk", "usage", 70)  # Предполагаем, что 70 - это базовое значение использования Disk
+        point = Point("cpu") \
+            .tag("host", "host1") \
+            .field("total", 50 + int(random.uniform(-9, 9))) \
+            .field("free", 50 - 30 + int(random.uniform(-9, 9))) \
+            .field("used", 30 + int(random.uniform(-9, 9))) \
+            .time(datetime.utcnow(), WritePrecision.NS)
+        write_api.write(INFLUX_BUCKET, INFLUXDB_ORG, point)
 
-        # # Генерация и запись данных для RAM
-        # write_random_data("ram", "usage", 30)  # Предполагаем, что 30 - это базовое значение использования RAM
+        point = Point("ram") \
+            .tag("host", "host1") \
+            .field("total", 50 + int(random.uniform(-9, 9))) \
+            .field("sys", 50 - 30 + int(random.uniform(-9, 9))) \
+            .field("used", 30 + int(random.uniform(-9, 9))) \
+            .time(datetime.utcnow(), WritePrecision.NS)
+        write_api.write(INFLUX_BUCKET, INFLUXDB_ORG, point)
+
+        point = Point("disk") \
+            .tag("host", "host1") \
+            .field("total", 50 + int(random.uniform(-9, 9))) \
+            .field("free", 50 - 30 + int(random.uniform(-9, 9))) \
+            .field("used", 30 + int(random.uniform(-9, 9))) \
+            .time(datetime.utcnow(), WritePrecision.NS)
+        write_api.write(INFLUX_BUCKET, INFLUXDB_ORG, point)
+
 
 except KeyboardInterrupt:
     pass
