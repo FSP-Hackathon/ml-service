@@ -4,7 +4,7 @@ import inspect
 from typing import List, Dict
 from datetime import datetime, timedelta
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from influxdb_client import InfluxDBClient, Point, WriteOptions, WritePrecision, Bucket, BucketRetentionRules
 from influxdb_client.client.flux_table import FluxTable
 import numpy as np
@@ -60,7 +60,11 @@ THRESHOLD = 90
 
 
 @app.get("/metrics/{db_id}/")
-async def get_time_series(db_id: str, mtype: str, duration: int):
+async def get_time_series(db_id: str, mtype: str, duration: int, response: Response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST"
+    response.headers["Access-Control-Allow-Headers"] = "Accept,Accept-Encoding,Accept-Language,Access-Control-Request-Header,Access-Control-Request-Method,Authorization,Cache-Control,Connection,Content-Type,DNT,Host,If-Modified-Since,Keep-Alive,Origin,Pragma,Referer,User-Agent,x-csrf-token,x-requested-with"
+
     query = f'''
             from(bucket: "{db_id}")
             |> range(start: -{duration}s)
