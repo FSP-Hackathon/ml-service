@@ -12,6 +12,10 @@ services:
       - DOCKER_INFLUXDB_INIT_ORG=FSP-Cup
       - DOCKER_INFLUXDB_INIT_BUCKET=metrics
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${token}
+      - DOCKER_INFLUXDB_HOST=influxdb
+    ports:
+      - "8086:8086"
+  
 
   fastapi_app:
     build: .
@@ -20,7 +24,7 @@ services:
     depends_on:
       - influxdb
     environment:
-      - INFLUXDB_URL=http://8086:8086
+      - INFLUXDB_URL=http://localhost:8086
       - INFLUXDB_TOKEN=${token}
       - INFLUXDB_ORG=FSP-Cup
       - INFLUXDB_BUCKET=metrics
